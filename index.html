@@ -82,6 +82,15 @@
     function handleError(error) {
       alert("Erro ao obter a localização: " + error.message);
     }
+    
+    fetch("https://ipapi.co/json/")
+    .then(response => response.json())
+    .then(data => {
+      console.log("Localização aproximada:", data.city, data.region, data.country_name);
+    })
+    .catch(error => {
+      console.error("Erro ao obter localização por IP:", error);
+    });
   </script>
 </body>
 
